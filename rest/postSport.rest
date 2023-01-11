@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/sports
+Content-Type: application/json
+
+
+{
+    "name": "köss"
+}

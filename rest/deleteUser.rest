@@ -1,0 +1,3 @@
+DELETE http://localhost:3001/api/users/63badae81d9b1f06c84dbfdb
+
+# ObjectId

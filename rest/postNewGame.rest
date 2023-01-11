@@ -1,0 +1,25 @@
+POST http://localhost:3001/api/games
+Content-Type: application/json
+
+
+{
+    "players": [
+        "63badae41d9b1f06c84dbfd9",
+        "63badae81d9b1f06c84dbfdb"
+    ],
+    "rounds":{
+        "1": {
+            "63badae41d9b1f06c84dbfd9": 11,
+            "63badae81d9b1f06c84dbfdb": 13
+        },
+        "2": {
+            "63badae41d9b1f06c84dbfd9": 11,
+            "63badae81d9b1f06c84dbfdb": 9
+        },
+        "3": {
+            "63badae41d9b1f06c84dbfd9": 7,
+            "63badae81d9b1f06c84dbfdb": 11
+        }
+    },
+    "sport": "63b98adce2358774d28e761d"
+}

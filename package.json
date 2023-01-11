@@ -1,0 +1,32 @@
+{
+  "name": "pistepankki_backend",
+  "version": "1.0.0",
+  "description": "Nodejs.llä toteutettu backendi sulkapallon/kössin yms. pisteiden kirjaukseen",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Desipeli/pistepankki_backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Desipeli/pistepankki_backend/issues"
+  },
+  "homepage": "https://github.com/Desipeli/pistepankki_backend#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.7.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}

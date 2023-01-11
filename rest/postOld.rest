@@ -1,0 +1,35 @@
+POST http://localhost:3001/api/oldappgames
+content-type: application/json
+
+
+{
+     "date":"Wed, 29 Sep 2021 17:50:00 GMT",
+     "players":[
+        "dessu",
+        "kortsu"
+     ],
+     "rounds":[
+        {
+           "dessu":21,
+           "kortsu":17
+        },
+        {
+           "dessu":21,
+           "kortsu":23
+        },
+        {
+           "dessu":16,
+           "kortsu":21
+        },
+        {
+           "dessu":21,
+           "kortsu":17
+        }
+     ],
+     "sport":"squash",
+     "submitter":"dessu",
+     "winners":[
+        "dessu",
+        "kortsu"
+     ]
+}
