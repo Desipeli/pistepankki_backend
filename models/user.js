@@ -27,7 +27,7 @@ userSchema.set('toJSON', {
   //virtuals: true,
   transform: (doc, ret) =>{
     delete ret.passwordhash
-
+    delete ret.__v
   }
 })
 

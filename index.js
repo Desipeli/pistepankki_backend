@@ -15,11 +15,13 @@ const userRouter = require('./routes/userRouter')
 const oldGamesRouter = require('./routes/oldGamesRouter')
 const gamesRouter = require('./routes/gamesRouter')
 const sportRouter = require('./routes/sportRouter')
+const loginRouter = require('./routes/loginRouter')
 
 app.use('/api/users' ,userRouter)
 app.use('/api/oldappgames', oldGamesRouter)
 app.use('/api/games', gamesRouter)
 app.use('/api/sports', sportRouter)
+app.use('/api/login', loginRouter)
 
 
 
@@ -43,6 +45,9 @@ const errorHandler = (error, req, res, next) => {
     if (error.code === 11000) {
       return res.status(400).send({error: 'duplicate key error'})
     }
+  }
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).send({error: error.message})
   }
   next(error)
 }

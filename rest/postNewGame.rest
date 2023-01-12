@@ -1,24 +1,24 @@
 POST http://localhost:3001/api/games
 Content-Type: application/json
-
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImtvcnRzdSIsImlkIjoiNjNiZmQ1NWFhYzE4ZWZhZTk5YWI5NzgyIiwiaWF0IjoxNjczNTE3MTU0LCJleHAiOjE2ODEyOTMxNTR9.vwdmI0lzWInqfrVvXpI7qUBmu-nnfoYEbEPqbf8IP8o
 
 {
     "players": [
-        "63badae41d9b1f06c84dbfd9",
-        "63badae81d9b1f06c84dbfdb"
+        "63bfd55aac18efae99ab9782",
+        "63bfd55eac18efae99ab9784"
     ],
     "rounds":{
         "1": {
-            "63badae41d9b1f06c84dbfd9": 11,
-            "63badae81d9b1f06c84dbfdb": 13
+            "63bfd55aac18efae99ab9782": 12,
+            "63bfd55eac18efae99ab9784": 12
         },
         "2": {
-            "63badae41d9b1f06c84dbfd9": 11,
-            "63badae81d9b1f06c84dbfdb": 9
+            "63bfd55aac18efae99ab9782": 12,
+            "63bfd55eac18efae99ab9784": 2
         },
         "3": {
-            "63badae41d9b1f06c84dbfd9": 7,
-            "63badae81d9b1f06c84dbfdb": 11
+            "63bfd55aac18efae99ab9782": 2,
+            "63bfd55eac18efae99ab9784": 12
         }
     },
     "sport": "63b98adce2358774d28e761d"

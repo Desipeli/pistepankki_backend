@@ -16,7 +16,6 @@ router.post('/', async (req, res, next) => {
       passwordhash: hash,
       email: data["email"]
     })
-    console.log(newUser)
     const response = await newUser.save()
   
     res.json(response).status(201).end()
