@@ -19,7 +19,7 @@ router.post('/', async (req, res, next) => {
     console.log(newUser)
     const response = await newUser.save()
   
-    res.json(response)
+    res.json(response).status(201).end()
   } catch (error) {
     next(error)
   }
