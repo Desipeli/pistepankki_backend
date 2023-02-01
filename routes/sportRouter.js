@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express')
 const Sport = require('../models/sport')
 const router = express.Router()
 
@@ -22,7 +22,7 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   const data = req.body
-  const name = data["name"]
+  const name = data['name']
   
   try {
     const newSport = Sport({ name: name })

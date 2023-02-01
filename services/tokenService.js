@@ -9,7 +9,7 @@ const getTokenFrom = req => {
 }
 
 const getDecodedToken = (req) => {
-    return jwt.verify(getTokenFrom(req), process.env.SECRET)
+  return jwt.verify(getTokenFrom(req), process.env.SECRET)
 }
 
 module.exports = getDecodedToken

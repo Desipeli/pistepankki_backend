@@ -1,7 +1,7 @@
-const express = require("express");
+const express = require('express')
 const User = require('../models/user')
-const Game = require('../models/game');
-const mongoose = require('mongoose');
+const Game = require('../models/game')
+const mongoose = require('mongoose')
 const router = express.Router()
 const getDecodedToken = require('../services/tokenService')
 
@@ -10,19 +10,18 @@ const getDecodedToken = require('../services/tokenService')
 
 router.get('/', async (req, res, next) => {
   const parameters = {}
-  let currentQuery = ''
   try {
+    if (req.query.id) {
+      parameters['_id'] = mongoose.Types.ObjectId(req.query.id)
+    }
     if (req.query.winnerid) {
-      currentQuery = 'winnerid'
-      parameters["winners"] = mongoose.Types.ObjectId(req.query.winnerid)
+      parameters['winners'] = mongoose.Types.ObjectId(req.query.winnerid)
     }
     if (req.query.sportid) {
-      currentQuery = 'sportid'
-      parameters["sport"] = mongoose.Types.ObjectId(req.query.sportid)
+      parameters['sport'] = mongoose.Types.ObjectId(req.query.sportid)
     }
     if (req.query.datefrom && req.query.dateto) {
       // Decode datestring!!!
-      currentQuery = 'datefrom & dateto'
       parameters['date'] = {
         '$gte': decodeURIComponent(req.query.datefrom),
         '$lte': decodeURIComponent(req.query.dateto)
@@ -30,7 +29,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const allGames = await Game.find(parameters)
-    // .populate('players', { games: 0, __v: 0 })
+      .populate('players', { games: 0, __v: 0 })
     // .populate('sport', { __v: 0 })
     res.json(allGames)
   } catch (error) {
@@ -54,21 +53,21 @@ router.post('/', async (req, res, next) => {
     for (const player of data.players) {
       players[player] = await User.findById(player)
     }
-  // Check winner(s)
+    // Check winner(s)
     for (const player in players) {
       scores[player] = 0
     }
-  // check that each player belongs to the match
+    // check that each player belongs to the match
     for (const round in data.rounds) {
       const checkedPlayers = new Set()
       for (const player in data.rounds[round]) {
-        if (!(data["players"].includes(player))) {
+        if (!(data['players'].includes(player))) {
           return res.status(400).json({error: `error in round ${round}, player not in match`})
         }
         scores[player] += data.rounds[round][player]
         checkedPlayers.add(player)
       }
-      if (checkedPlayers.size != data["players"].length) {
+      if (checkedPlayers.size != data['players'].length) {
         return res.status(400).json({error: `error in round ${round}, player missing`}) 
       }
 
@@ -78,17 +77,16 @@ router.post('/', async (req, res, next) => {
     const maxScore = Object.values(scores).reduce((a, b) => Math.max(a,b), 0)
     for (const [key, value] of Object.entries(scores)) {
       if (value === maxScore) {
-        winners.push(players[key]["_id"])
+        winners.push(players[key]['_id'])
       }
     }
-  // Create and save game. Update users
+    // Create and save game. Update users
     const newGame = new Game({
-      players: Object.values(players).map(player => player["_id"]),
-      rounds: data["rounds"],
-      sport: data["sport"],
+      players: Object.values(players).map(player => player['_id']),
+      rounds: data['rounds'],
+      sport: data['sport'],
       winners: winners,
       date: Date.now(),
-      sport: data["sport"],
       accepted: players.length > 1? false: true,
       submitter: mongoose.Types.ObjectId(decodedToken.id)
     })
@@ -96,7 +94,7 @@ router.post('/', async (req, res, next) => {
     const savedGame = await newGame.save()
   
     if (savedGame) {
-      for (userId of Object.keys(players)) {
+      for (let userId of Object.keys(players)) {
         const user = await User.findOne({'_id': userId})
         if (user['games']) {
           await User.findByIdAndUpdate(userId, { games: [...user['games'], newGame]})
@@ -117,11 +115,11 @@ router.get('/:id', async (req, res) => {
   // return match by objectid
   try {
     const game = await Game.findById(req.params.id)
-    .populate('players', { games: 0, __v: 0 })
-    .populate('sport', { __v: 0 })
+      .populate('players', { games: 0, __v: 0 })
+      .populate('sport', { __v: 0 })
     res.json(game)
   } catch {
-    res.json({error: "Game not found"})
+    res.json({error: 'Game not found'})
   }
   
 })

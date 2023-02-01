@@ -1,20 +1,20 @@
-const express = require("express");
+const express = require('express')
 const bcrypt = require('bcrypt')
-const User = require('../models/user');
+const User = require('../models/user')
 const router = express.Router()
 
 router.post('/', async (req, res, next) => {
   const data = req.body
   try {
-    if (data["password"].length < 5 || data["password"].length > 100) {
+    if (data['password'].length < 5 || data['password'].length > 100) {
       res.json({error: 'password length must be 5-100 characters'}).status(400).end()
       return
     }
-    const hash = await bcrypt.hash(data["password"], 10)
+    const hash = await bcrypt.hash(data['password'], 10)
     const newUser = User({
-      username: data["username"],
+      username: data['username'],
       passwordhash: hash,
-      email: data["email"]
+      email: data['email']
     })
     const response = await newUser.save()
   
@@ -27,11 +27,9 @@ router.post('/', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   const parameters = {}
-  let currentQuery = ''
 
   try {
     if (req.query.username) {
-      currentQuery = 'username'
       parameters['username'] = req.query.username
     }
     if (req.query.id) {

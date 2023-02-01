@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express')
 const User = require('../models/user')
 const Sport = require('../models/sport')
 const Game = require('../models/game')
@@ -7,15 +7,15 @@ const router = express.Router()
 
 router.post('/', async (req, res) => {
   const data = req.body
-  names_ids = {}
-  for (const username of data["players"]) {
+  const names_ids = {}
+  for (const username of data['players']) {
     const user = await User.findOne({username: username})
-    const user_id = user["_id"]
+    const user_id = user['_id']
     names_ids[username] = user_id
   }
 
   const formatted_rounds = {}
-  data["rounds"].forEach((round, index) => {
+  data['rounds'].forEach((round, index) => {
     const newRound = {}
     Object.keys(round).forEach(user => {
       newRound[names_ids[user]] = round[user]
@@ -24,20 +24,20 @@ router.post('/', async (req, res) => {
   })
 
   const winners = []
-    for (const username of data["winners"]) {
-      if (username in names_ids) {
-        winners.push(names_ids[username])
-      }
+  for (const username of data['winners']) {
+    if (username in names_ids) {
+      winners.push(names_ids[username])
     }
+  }
 
-  const sport = await Sport.findOne({name: data["sport"]})
-  const sportId = sport["_id"]
+  const sport = await Sport.findOne({name: data['sport']})
+  const sportId = sport['_id']
 
-  const submitter = names_ids[data["submitter"]]
+  const submitter = names_ids[data['submitter']]
 
   const newgame = new Game({
     players: Object.values(names_ids),
-    date: data["date"],
+    date: data['date'],
     rounds: formatted_rounds,
     sport: sportId,
     submitter: submitter,
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
   const saved = await newgame.save()
 
   if (saved === newgame) {
-    for (userId of Object.values(names_ids)) {
+    for (let userId of Object.values(names_ids)) {
       const user = await User.findOne({'_id': userId})
       if (user['games']) {
         await User.findByIdAndUpdate(userId, { games: [...user['games'], newgame['_id']]})
@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
   }
   console.log(names_ids)
 
-  //res.json(saved)
+  res.json(saved)
 })
 
 
