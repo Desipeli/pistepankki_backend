@@ -34,6 +34,9 @@ router.get('/', async (req, res, next) => {
       currentQuery = 'username'
       parameters['username'] = req.query.username
     }
+    if (req.query.id) {
+      parameters['_id'] = req.query.id
+    }
     const users = await User
       .find(parameters)
       // .populate({
