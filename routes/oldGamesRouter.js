@@ -4,12 +4,11 @@ const Sport = require('../models/sport')
 const Game = require('../models/game')
 const router = express.Router()
 
-
 router.post('/', async (req, res) => {
   const data = req.body
   const names_ids = {}
   for (const username of data['players']) {
-    const user = await User.findOne({username: username})
+    const user = await User.findOne({ username: username })
     const user_id = user['_id']
     names_ids[username] = user_id
   }
@@ -17,7 +16,7 @@ router.post('/', async (req, res) => {
   const formatted_rounds = {}
   data['rounds'].forEach((round, index) => {
     const newRound = {}
-    Object.keys(round).forEach(user => {
+    Object.keys(round).forEach((user) => {
       newRound[names_ids[user]] = round[user]
     })
     formatted_rounds[index + 1] = newRound
@@ -30,7 +29,7 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const sport = await Sport.findOne({name: data['sport']})
+  const sport = await Sport.findOne({ name: data['sport'] })
   const sportId = sport['_id']
 
   const submitter = names_ids[data['submitter']]
@@ -42,18 +41,20 @@ router.post('/', async (req, res) => {
     sport: sportId,
     submitter: submitter,
     winners: winners,
-    accepted: true
+    accepted: true,
   })
 
   const saved = await newgame.save()
 
   if (saved === newgame) {
     for (let userId of Object.values(names_ids)) {
-      const user = await User.findOne({'_id': userId})
+      const user = await User.findOne({ _id: userId })
       if (user['games']) {
-        await User.findByIdAndUpdate(userId, { games: [...user['games'], newgame['_id']]})
+        await User.findByIdAndUpdate(userId, {
+          games: [...user['games'], newgame['_id']],
+        })
       } else {
-        await User.findByIdAndUpdate(userId, { games: [newgame['_id']]})
+        await User.findByIdAndUpdate(userId, { games: [newgame['_id']] })
       }
     }
   }
@@ -61,6 +62,5 @@ router.post('/', async (req, res) => {
 
   res.json(saved)
 })
-
 
 module.exports = router

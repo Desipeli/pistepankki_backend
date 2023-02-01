@@ -6,8 +6,8 @@ const sportSchema = new mongoose.Schema({
     required: true,
     minlength: 3,
     maxlength: 100,
-    unique: true
-  }
+    unique: true,
+  },
 })
 
 module.exports = mongoose.model('Sport', sportSchema)

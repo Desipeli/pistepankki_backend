@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 3,
     maxlength: 12,
-    unique: true
+    unique: true,
   },
   passwordhash: {
     type: String,
@@ -19,16 +19,16 @@ const userSchema = new mongoose.Schema({
   games: {
     type: [mongoose.Schema.Types.ObjectId],
     required: false,
-    ref: 'Game'
-  }
+    ref: 'Game',
+  },
 })
 
 userSchema.set('toJSON', {
   //virtuals: true,
-  transform: (doc, ret) =>{
+  transform: (doc, ret) => {
     delete ret.passwordhash
     delete ret.__v
-  }
+  },
 })
 
 module.exports = mongoose.model('User', userSchema)

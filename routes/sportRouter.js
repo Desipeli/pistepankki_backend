@@ -23,7 +23,7 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   const data = req.body
   const name = data['name']
-  
+
   try {
     const newSport = Sport({ name: name })
     await newSport.save()
@@ -31,7 +31,6 @@ router.post('/', async (req, res, next) => {
   } catch (error) {
     next(error)
   }
-
 })
 
 router.delete('/', async (req, res, next) => {
@@ -51,6 +50,5 @@ router.delete('/:id', async (req, res, next) => {
     next(error)
   }
 })
-
 
 module.exports = router

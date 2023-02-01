@@ -8,7 +8,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
-    "lintfix": "eslint . --fix"
+    "lintfix": "eslint . --fix",
+    "prettier": "npx prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "eslint": "^8.33.0",
-    "nodemon": "^2.0.20"
+    "eslint-config-prettier": "^8.6.0",
+    "nodemon": "^2.0.20",
+    "prettier": "2.8.3"
   }
 }

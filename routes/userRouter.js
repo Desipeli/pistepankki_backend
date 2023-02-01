@@ -7,22 +7,24 @@ router.post('/', async (req, res, next) => {
   const data = req.body
   try {
     if (data['password'].length < 5 || data['password'].length > 100) {
-      res.json({error: 'password length must be 5-100 characters'}).status(400).end()
+      res
+        .json({ error: 'password length must be 5-100 characters' })
+        .status(400)
+        .end()
       return
     }
     const hash = await bcrypt.hash(data['password'], 10)
     const newUser = User({
       username: data['username'],
       passwordhash: hash,
-      email: data['email']
+      email: data['email'],
     })
     const response = await newUser.save()
-  
+
     res.json(response).status(201).end()
   } catch (error) {
     next(error)
   }
- 
 })
 
 router.get('/', async (req, res, next) => {
@@ -35,18 +37,17 @@ router.get('/', async (req, res, next) => {
     if (req.query.id) {
       parameters['_id'] = req.query.id
     }
-    const users = await User
-      .find(parameters)
-      // .populate({
-      //   path: 'games',
-      //   model: 'Game',
-      //   select: 'sport date',
-      //   populate: {
-      //     path: 'sport',
-      //     model: 'Sport'
-      //   }
-      // })
-      
+    const users = await User.find(parameters)
+    // .populate({
+    //   path: 'games',
+    //   model: 'Game',
+    //   select: 'sport date',
+    //   populate: {
+    //     path: 'sport',
+    //     model: 'Sport'
+    //   }
+    // })
+
       .populate('games')
     res.json(users).status(200).end()
   } catch (error) {
@@ -54,7 +55,7 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.delete('/:id', async(req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id)
   } catch (error) {
