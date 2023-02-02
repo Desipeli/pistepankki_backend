@@ -101,11 +101,19 @@ router.post('/', async (req, res, next) => {
       for (let userId of Object.keys(players)) {
         const user = await User.findOne({ _id: userId })
         if (user['games']) {
-          await User.findByIdAndUpdate(userId, {
-            games: [...user['games'], newGame],
-          })
+          await User.findByIdAndUpdate(
+            userId,
+            {
+              games: [...user['games'], newGame],
+            },
+            { runValidators: true, context: 'query' }
+          )
         } else {
-          await User.findByIdAndUpdate(userId, { games: [newGame['_id']] })
+          await User.findByIdAndUpdate(
+            userId,
+            { games: [newGame['_id']] },
+            { runValidators: true, context: 'query' }
+          )
         }
       }
     }
