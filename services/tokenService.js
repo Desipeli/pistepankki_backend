@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const config = require('../utils/config')
 
 const getTokenFrom = (req) => {
   const authorization = req.get('authorization')
@@ -9,7 +10,7 @@ const getTokenFrom = (req) => {
 }
 
 const getDecodedToken = (req) => {
-  return jwt.verify(getTokenFrom(req), process.env.SECRET)
+  return jwt.verify(getTokenFrom(req), config.SECRET)
 }
 
 module.exports = getDecodedToken

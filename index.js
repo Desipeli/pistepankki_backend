@@ -1,4 +1,4 @@
-require('dotenv').config()
+const config = require('./utils/config')
 const express = require('express')
 require('express-async-errors')
 const app = express()
@@ -9,7 +9,7 @@ app.use(cors())
 app.use(morgan('combined'))
 
 const mongoose = require('mongoose')
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(config.MONGO_URL)
 
 // Routers
 const userRouter = require('./routes/userRouter')
@@ -57,7 +57,7 @@ const errorHandler = (error, req, res, next) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3002
+const PORT = config.PORT || 3002
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
