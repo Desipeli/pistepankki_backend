@@ -5,161 +5,155 @@ const mongoose = require('mongoose')
 const router = express.Router()
 const getDecodedToken = require('../services/tokenService')
 
-router.get('/', async (req, res, next) => {
+router.get('/', async (req, res) => {
   const parameters = {}
-  try {
-    if (req.query.id) {
-      parameters['_id'] = mongoose.Types.ObjectId(req.query.id)
-    }
-    if (req.query.winnerid) {
-      parameters['winners'] = mongoose.Types.ObjectId(req.query.winnerid)
-    }
-    if (req.query.sportid) {
-      parameters['sport'] = mongoose.Types.ObjectId(req.query.sportid)
-    }
-    if (req.query.datefrom && req.query.dateto) {
-      // Decode datestring!!!
-      parameters['date'] = {
-        $gte: decodeURIComponent(req.query.datefrom),
-        $lte: decodeURIComponent(req.query.dateto),
-      }
-    }
 
-    const allGames = await Game.find(parameters).populate('players', {
-      games: 0,
-      __v: 0,
-    })
-    // .populate('sport', { __v: 0 })
-    res.json(allGames)
-  } catch (error) {
-    next(error)
+  if (req.query.id) {
+    parameters['_id'] = mongoose.Types.ObjectId(req.query.id)
   }
+  if (req.query.winnerid) {
+    parameters['winners'] = mongoose.Types.ObjectId(req.query.winnerid)
+  }
+  if (req.query.sportid) {
+    parameters['sport'] = mongoose.Types.ObjectId(req.query.sportid)
+  }
+  if (req.query.datefrom && req.query.dateto) {
+    // Decode datestring!!!
+    parameters['date'] = {
+      $gte: decodeURIComponent(req.query.datefrom),
+      $lte: decodeURIComponent(req.query.dateto),
+    }
+  }
+
+  const allGames = await Game.find(parameters).populate('players', {
+    games: 0,
+    __v: 0,
+  })
+  // .populate('sport', { __v: 0 })
+  res.json(allGames)
 })
 
-router.post('/', async (req, res, next) => {
-  try {
-    const decodedToken = getDecodedToken(req)
+router.post('/', async (req, res) => {
+  const decodedToken = getDecodedToken(req)
 
-    const data = req.body
-    const players = {}
-    const scores = {}
+  const data = req.body
+  const players = {}
 
-    if (!data.players.includes(decodedToken.id)) {
-      console.log(data.players.includes(decodedToken.id))
-      return res
-        .status(401)
-        .json({ error: 'You can only post games where you participated' })
+  if (!data.players.includes(decodedToken.id)) {
+    throw {
+      name: 'Custom',
+      message: 'You can only post games where you participated',
     }
-
-    for (const player of data.players) {
-      players[player] = await User.findById(player)
-    }
-    // Check winner(s)
-    for (const player in players) {
-      scores[player] = 0
-    }
-    // check that each player belongs to the match
-    for (const round in data.rounds) {
-      const checkedPlayers = new Set()
-      for (const player in data.rounds[round]) {
-        if (!data['players'].includes(player)) {
-          return res
-            .status(400)
-            .json({ error: `error in round ${round}, player not in match` })
-        }
-        scores[player] += data.rounds[round][player]
-        checkedPlayers.add(player)
-      }
-      if (checkedPlayers.size != data['players'].length) {
-        return res
-          .status(400)
-          .json({ error: `error in round ${round}, player missing` })
-      }
-    }
-
-    const winners = []
-    const maxScore = Object.values(scores).reduce((a, b) => Math.max(a, b), 0)
-    for (const [key, value] of Object.entries(scores)) {
-      if (value === maxScore) {
-        winners.push(players[key]['_id'])
-      }
-    }
-    // Create and save game. Update users
-    const newGame = new Game({
-      players: Object.values(players).map((player) => player['_id']),
-      rounds: data['rounds'],
-      sport: data['sport'],
-      winners: winners,
-      date: Date.now(),
-      accepted: players.length > 1 ? false : true,
-      submitter: mongoose.Types.ObjectId(decodedToken.id),
-    })
-
-    const savedGame = await newGame.save()
-
-    if (savedGame) {
-      for (let userId of Object.keys(players)) {
-        const user = await User.findOne({ _id: userId })
-        if (user['games']) {
-          await User.findByIdAndUpdate(
-            userId,
-            {
-              games: [...user['games'], newGame],
-            },
-            { runValidators: true, context: 'query' }
-          )
-        } else {
-          await User.findByIdAndUpdate(
-            userId,
-            { games: [newGame['_id']] },
-            { runValidators: true, context: 'query' }
-          )
-        }
-      }
-    }
-
-    res.status(200).end()
-  } catch (error) {
-    next(error)
   }
+
+  for await (const [index, player] of data.players.entries()) {
+    if (player in players)
+      throw {
+        name: 'Custom',
+        message: 'duplicate player',
+      }
+    players[player] = await User.findById(player)
+    if (players[player] === null) {
+      throw {
+        name: 'Custom',
+        message: `player ${index + 1} not in database`,
+      }
+    }
+  }
+
+  const scores = Array(data.players.length).fill(0)
+
+  // Check rounds(s)
+
+  for (const [roundIndex, round] of data.rounds.entries()) {
+    if (round.length !== data.players.length) {
+      throw {
+        name: 'Custom',
+        message: `Incorrect amount of players in round ${roundIndex + 1}`,
+      }
+    }
+    for (const [scoreIndex, score] of data.rounds[roundIndex].entries()) {
+      if (Number(score)) scores[scoreIndex] += Number(score)
+      else
+        throw {
+          name: 'Custom',
+          message: `malformatted score round ${roundIndex + 1} player ${
+            scoreIndex + 1
+          }`,
+        }
+    }
+  }
+
+  const winners = []
+  const maxScore = scores.reduce((a, b) => Math.max(a, b), 0)
+  for (const [index, value] of scores.entries()) {
+    if (value === maxScore) {
+      winners.push(data.players[index])
+    }
+  }
+
+  // Create and save game. Update users
+  const newGame = new Game({
+    players: data['players'],
+    rounds: data['rounds'],
+    sport: data['sport'],
+    winners: winners,
+    date: Date.now(),
+    approved: data['players'].length > 1 ? false : true,
+    submitter: mongoose.Types.ObjectId(decodedToken.id),
+    approvedBy: mongoose.Types.ObjectId(decodedToken.id),
+  })
+
+  const savedGame = await newGame.save()
+
+  if (savedGame) {
+    for (let userId of Object.keys(players)) {
+      const user = await User.findOne({ _id: userId })
+      if (user['games']) {
+        await User.findByIdAndUpdate(
+          userId,
+          {
+            games: [...user['games'], newGame],
+          },
+          { runValidators: true, context: 'query' }
+        )
+      } else {
+        await User.findByIdAndUpdate(
+          userId,
+          { games: [newGame['_id']] },
+          { runValidators: true, context: 'query' }
+        )
+      }
+    }
+  }
+
+  res.status(200).end()
 })
 
 router.get('/:id', async (req, res) => {
-  // return match by objectid
-  try {
-    const game = await Game.findById(req.params.id)
-      .populate('players', { games: 0, __v: 0 })
-      .populate('sport', { __v: 0 })
-    res.json(game)
-  } catch {
-    res.json({ error: 'Game not found' })
+  const game = await Game.findById(req.params.id)
+    .populate('players', { games: 0, __v: 0 })
+    .populate('sport', { __v: 0 })
+  if (game) {
+    res.status(200).json(game)
   }
+  res.status(404).end()
 })
 
 router.delete('/:id', async (req, res) => {
   // Delete match from games and from all connected users
-  try {
-    await Game.findByIdAndDelete(req.params.id)
-    const users = await User.find({ games: req.params.id })
 
-    for (const user of users) {
-      const newGamesList = user.games.filter(
-        (game) => !game.equals(mongoose.Types.ObjectId(req.params.id))
-      )
-      await User.updateOne({ _id: user._id }, { games: newGamesList })
-    }
-    res.status(204).end()
-  } catch {
-    res.status(500).end()
-  }
-})
+  const deletedMatch = await Game.findByIdAndDelete(req.params.id)
+  const players = deletedMatch.players
 
-router.delete('/', async (req, res) => {
-  try {
-    await Game.deleteMany({})
-  } catch {
-    res.json({ error: 'error occurred when deleting games' }).status(500).end()
+  for await (const userId of players) {
+    const user = await User.findById(userId)
+    const filteredGames = user.games.filter(
+      (game) => !game.equals(mongoose.Types.ObjectId(req.params.id))
+    )
+    await User.updateOne({ _id: userId }, { games: filteredGames })
   }
+
   res.status(204).end()
 })
 

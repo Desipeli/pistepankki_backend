@@ -14,7 +14,7 @@ const gameSchema = new mongoose.Schema({
     },
   ],
   date: Date,
-  rounds: {},
+  rounds: [],
   sport: {
     type: mongoose.Types.ObjectId,
     ref: 'Sport',
@@ -23,8 +23,8 @@ const gameSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  accepted: Boolean,
-  acceptedBy: [
+  approved: Boolean,
+  approvedBy: [
     {
       type: mongoose.Types.ObjectId,
       ref: 'User',

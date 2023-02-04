@@ -1,3 +1,3 @@
-DELETE http://localhost:3001/api/games/63bfd3b2bb63cfe638dc8027
+DELETE http://localhost:3001/api/games/63de68d277d2dc711309fcc7
 
 # ObjectId

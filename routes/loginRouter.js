@@ -4,35 +4,31 @@ const User = require('../models/user')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 
-router.post('/', async (req, res, next) => {
-  try {
-    const { username, password } = req.body
-    if (!(username && password)) {
-      return res
-        .status(401)
-        .json({ error: 'provide username and password' })
-        .end()
+router.post('/', async (req, res) => {
+  const { username, password } = req.body
+  if (!(username && password))
+    throw {
+      name: 'Authorization',
+      message: 'provide username and password',
     }
-    const user = await User.findOne({ username })
+  const user = await User.findOne({ username })
 
-    const passwordCorrect =
-      user === null ? false : await bcrypt.compare(password, user.passwordhash)
+  const passwordCorrect =
+    user === null ? false : await bcrypt.compare(password, user.passwordhash)
 
-    if (!(user && passwordCorrect)) {
-      return res.status(401).json({ error: 'invalid credentials' }).end()
-    }
-
-    const tokenUser = {
-      username: user.username,
-      id: user._id,
+  if (!(user && passwordCorrect))
+    throw {
+      name: 'Authorization',
+      message: 'invalid credentials',
     }
 
-    const token = jwt.sign(tokenUser, process.env.SECRET, { expiresIn: '90d' })
-    res.status(200).send({ token, username: user.username })
-  } catch (error) {
-    console.error(error)
-    next(error)
+  const tokenUser = {
+    username: user.username,
+    id: user._id,
   }
+
+  const token = jwt.sign(tokenUser, process.env.SECRET, { expiresIn: '90d' })
+  res.status(200).send({ token, username: user.username })
 })
 
 module.exports = router
