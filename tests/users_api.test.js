@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const config = require('../utils/config')
 
 const api = supertest(app)
 
@@ -31,6 +32,10 @@ const createUsers = async () => {
   await api.post('/api/users').send(user3).expect(201)
   await api.post('/api/users').send(user4).expect(201)
 }
+
+beforeEach(() => {
+  mongoose.connect(config.MONGO_URL)
+})
 
 beforeAll(async () => {
   await api.delete('/api/users')
