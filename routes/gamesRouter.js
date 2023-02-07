@@ -1,4 +1,5 @@
 const express = require('express')
+const config = require('../utils/config')
 const User = require('../models/user')
 const Game = require('../models/game')
 const mongoose = require('mongoose')
@@ -35,23 +36,22 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const decodedToken = getDecodedToken(req)
-
   const data = req.body
   const players = {}
-
   if (!data.players.includes(decodedToken.id)) {
     throw {
-      name: 'Custom',
+      name: 'Forbidden',
       message: 'You can only post games where you participated',
     }
   }
-
   for await (const [index, player] of data.players.entries()) {
-    if (player in players)
+    console.log(player)
+    if (player in players) {
       throw {
         name: 'Custom',
         message: 'duplicate player',
       }
+    }
     players[player] = await User.findById(player)
     if (players[player] === null) {
       throw {
@@ -60,7 +60,6 @@ router.post('/', async (req, res) => {
       }
     }
   }
-
   const scores = Array(data.players.length).fill(0)
 
   // Check rounds(s)
@@ -113,21 +112,21 @@ router.post('/', async (req, res) => {
         await User.findByIdAndUpdate(
           userId,
           {
-            games: [...user['games'], newGame],
+            games: [...user['games'], savedGame['_id']],
           },
           { runValidators: true, context: 'query' }
         )
       } else {
         await User.findByIdAndUpdate(
           userId,
-          { games: [newGame['_id']] },
+          { games: [savedGame['_id']] },
           { runValidators: true, context: 'query' }
         )
       }
     }
   }
 
-  res.status(200).end()
+  res.status(201).json(savedGame).end()
 })
 
 router.get('/:id', async (req, res) => {
@@ -154,6 +153,12 @@ router.delete('/:id', async (req, res) => {
     await User.updateOne({ _id: userId }, { games: filteredGames })
   }
 
+  res.status(204).end()
+})
+
+router.delete('/', async (req, res) => {
+  if (config.NODE_ENV !== 'test') return
+  await Game.deleteMany({})
   res.status(204).end()
 })
 

@@ -59,17 +59,17 @@ router.get('/', async (req, res) => {
     parameters['_id'] = req.query.id
   }
   const users = await User.find(parameters)
-    .populate({
-      path: 'games',
-      model: 'Game',
-      select: 'sport date',
-      populate: {
-        path: 'sport',
-        model: 'Sport',
-      },
-    })
+    // .populate({
+    //   path: 'games',
+    //   model: 'Game',
+    //   select: 'sport date',
+    //   populate: {
+    //     path: 'sport',
+    //     model: 'Sport',
+    //   },
+    // })
     .populate('games')
-  res.json(users).status(200).end()
+  res.status(200).json(users).end()
 })
 
 router.delete('/:id', async (req, res) => {

@@ -21,6 +21,9 @@ const errorHandler = (error, req, res, next) => {
   if (error.name === 'Authorization') {
     return res.status(401).json({ error: error.message })
   }
+  if (error.name === 'Forbidden') {
+    return res.status(403).send({ error: error.message })
+  }
   if (error.name === 'Custom') {
     return res.status(400).json({ error: error.message })
   }
