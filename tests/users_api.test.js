@@ -11,6 +11,7 @@ const userListLength = async (length) => {
 }
 
 const createUsers = async () => {
+  console.log('LISÄTÄÄN KÄYTTÄJÄ')
   const user1 = {
     username: 'user1',
     password: 'pass1',
@@ -27,7 +28,8 @@ const createUsers = async () => {
     username: 'user4',
     password: 'pass4',
   }
-  await api.post('/api/users').send(user1).expect(201)
+  const u = await api.post('/api/users').send(user1).expect(201)
+  console.log('UUUUU', u.body)
   await api.post('/api/users').send(user2).expect(201)
   await api.post('/api/users').send(user3).expect(201)
   await api.post('/api/users').send(user4).expect(201)
