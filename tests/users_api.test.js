@@ -1,13 +1,7 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const config = require('../utils/config')
-
 const api = supertest(app)
-
-beforeAll(async () => {
-  await mongoose.connect(config.MONGO_URL)
-})
 
 const userListLength = async (length) => {
   const res = await api.get('/api/users').expect(200)
@@ -15,7 +9,6 @@ const userListLength = async (length) => {
 }
 
 const createUsers = async () => {
-  console.log('LISÄTÄÄN KÄYTTÄJÄ')
   const user1 = {
     username: 'user1',
     password: 'pass1',
@@ -32,16 +25,11 @@ const createUsers = async () => {
     username: 'user4',
     password: 'pass4',
   }
-  const u = await api.post('/api/users').send(user1)
-  console.log('UUUUU', u.body)
+  await api.post('/api/users').send(user1).expect(201)
   await api.post('/api/users').send(user2).expect(201)
   await api.post('/api/users').send(user3).expect(201)
   await api.post('/api/users').send(user4).expect(201)
 }
-
-beforeEach(() => {
-  mongoose.connect(config.MONGO_URL)
-})
 
 beforeAll(async () => {
   await api.delete('/api/users')
