@@ -5,6 +5,10 @@ const config = require('../utils/config')
 
 const api = supertest(app)
 
+beforeAll(async () => {
+  await mongoose.connect(config.MONGO_URL)
+})
+
 const userListLength = async (length) => {
   const res = await api.get('/api/users').expect(200)
   expect(res.body).toHaveLength(length)
