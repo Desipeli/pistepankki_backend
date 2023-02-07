@@ -1,16 +1,19 @@
-const errorHandler = (error, req, res, next) => {
-  console.error(error.message)
+const mongoose = require('mongoose')
 
+const errorHandler = (error, req, res, next) => {
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
   }
   if (error.name === 'TypeError') {
-    return res.status(400).send({ error: 'TypeError (check missing fields)' })
+    return res.status(400).send({ error: 'TypeError' })
   }
   if (error.name === 'MongoServerError') {
     if (error.code === 11000) {
       return res.status(400).send({ error: 'duplicate key error' })
     }
+  }
+  if (error.name === 'ValidationError') {
+    return res.status(400).send({ error: error.message })
   }
   if (error.name === 'JsonWebTokenError') {
     return res.status(401).send({ error: error.message })
