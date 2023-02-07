@@ -258,7 +258,7 @@ test('deleted game is removed from all users', async () => {
     sport: sportId,
   }
   const token = `Bearer ${await login('user1', 'pass1')}`
-  const createdGame = await api
+  await api
     .post('/api/games')
     .set('Authorization', token)
     .send(newGame)
@@ -268,7 +268,7 @@ test('deleted game is removed from all users', async () => {
   expect(game.body).toHaveLength(1)
   let user1 = await api.get(`/api/users?id=${p1Id}`).expect(200)
   let user2 = await api.get(`/api/users?id=${p2Id}`).expect(200)
-  const users = await api.get('/api/users').expect(200)
+  await api.get('/api/users').expect(200)
   expect(user1.body[0].games).toHaveLength(1)
   expect(user2.body[0].games).toHaveLength(1)
   await api.delete('/api/games').expect(204)

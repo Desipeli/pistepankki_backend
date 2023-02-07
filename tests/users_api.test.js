@@ -203,7 +203,7 @@ describe('Delete', () => {
     const res = await api.get('/api/users/?username=user3').expect(200)
     const _id = res.body[0]._id
     await api.delete(`/api/users/${_id}`).expect(204)
-    const users = await api.get('/api/users').expect(200)
+    await api.get('/api/users').expect(200)
     userListLength(3)
   })
 })
