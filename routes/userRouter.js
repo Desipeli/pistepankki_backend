@@ -26,7 +26,7 @@ const validateEmail = async (addr) => {
 
 router.post('/', async (req, res) => {
   console.log(req.body)
-  console.log('NODE_ENV === test', config.NODE_ENV.includes('test'))
+  console.log('NODE_ENV === test', config.MONGO_URL.includes('test'))
   const data = req.body
   if (!data.username || !data.password)
     throw {
