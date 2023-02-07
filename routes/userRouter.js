@@ -26,6 +26,7 @@ const validateEmail = async (addr) => {
 
 router.post('/', async (req, res) => {
   console.log(req.body)
+  console.log('NODE_ENV', config.NODE_ENV)
   const data = req.body
   if (!data.username || !data.password)
     throw {
@@ -45,7 +46,9 @@ router.post('/', async (req, res) => {
     passwordhash: hash,
     email: await validateEmail(data['email']),
   })
+  console.log(newUser)
   const response = await newUser.save()
+  console.log('newUser saved')
 
   res.status(201).json(response).end()
 })
