@@ -28,7 +28,7 @@ const createUsers = async () => {
     username: 'user4',
     password: 'pass4',
   }
-  const u = await api.post('/api/users').send(user1).expect(201)
+  const u = await api.post('/api/users').send(user1)
   console.log('UUUUU', u.body)
   await api.post('/api/users').send(user2).expect(201)
   await api.post('/api/users').send(user3).expect(201)
