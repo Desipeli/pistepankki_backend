@@ -17,4 +17,5 @@ jobs:
       env:
         SECRET: ${{ secrets.SECRET }}
         MONGO_URL_TEST: ${{ secrets.MONGO_URL_TEST }}
+        MONGO_URL: ${{ secrets.MONGO_URL }}
     - run: npm run test
