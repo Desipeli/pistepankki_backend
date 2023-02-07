@@ -20,4 +20,5 @@ jobs:
         MONGO_URL: ${{ secrets.MONGO_URL }}
         NODE_ENV: ${{ secrets.NODE_ENV }}
         PORT: ${{ secrets.PORT }}
+    - run: npm run lint
     - run: npm run test
