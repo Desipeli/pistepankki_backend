@@ -1,0 +1,24 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 19
+    - run: npm install
+      env:
+        SECRET: ${{ secrets.SECRET }}
+        MONGO_URL_TEST: ${{ secrets.MONGO_URL_TEST }}
+        MONGO_URL: ${{ secrets.MONGO_URL }}
+        NODE_ENV: ${{ secrets.NODE_ENV }}
+        PORT: ${{ secrets.PORT }}
+    - run: npm run lint
+    - run: npm run test
