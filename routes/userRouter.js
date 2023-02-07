@@ -25,6 +25,7 @@ const validateEmail = async (addr) => {
 }
 
 router.post('/', async (req, res) => {
+  console.log(req.body)
   const data = req.body
   if (!data.username || !data.password)
     throw {
