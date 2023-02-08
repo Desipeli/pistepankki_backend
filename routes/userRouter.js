@@ -1,6 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const Game = require('../models/game')
 const config = require('../utils/config')
 const router = express.Router()
 
@@ -71,7 +72,43 @@ router.get('/', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  await User.findByIdAndDelete(req.params.id)
+  const user = await User.findByIdAndDelete(req.params.id)
+  const gamesToUpdate = user.games
+  const delRes = await User.find({ username: 'deleted' })
+  const replaceId = delRes[0]._id
+
+  for await (const id of gamesToUpdate) {
+    const game = await Game.findById(id)
+    const newPlayers = game.players.map((p) =>
+      p.equals(user._id) ? replaceId : p
+    )
+    // delete game if no players remaining
+    const remainingPlayers = new Set()
+    remainingPlayers.add(replaceId.toString())
+    for await (const p of newPlayers) {
+      remainingPlayers.add(p.toString())
+    }
+    if (remainingPlayers.size === 1) {
+      await Game.deleteOne(id)
+      continue
+    }
+
+    const newWinners = game.winners.map((w) =>
+      w.equals(user._id) ? replaceId : w
+    )
+    const newSubmitter = game.submitter.equals(user._id)
+      ? replaceId
+      : game.submitter
+    const newApprovedBy = game.approvedBy.map((a) =>
+      a.equals(user._id) ? replaceId : a
+    )
+    await Game.findByIdAndUpdate(id, {
+      players: newPlayers,
+      winners: newWinners,
+      submitter: newSubmitter,
+      approvedBy: newApprovedBy,
+    })
+  }
   res.status(204).end()
 })
 
