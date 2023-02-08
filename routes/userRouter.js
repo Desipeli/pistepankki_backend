@@ -25,8 +25,6 @@ const validateEmail = async (addr) => {
 }
 
 router.post('/', async (req, res) => {
-  console.log(req.body)
-  console.log('NODE_ENV === test', config.MONGO_URL.includes('test'))
   const data = req.body
   if (!data.username || !data.password)
     throw {
@@ -38,17 +36,13 @@ router.post('/', async (req, res) => {
       name: 'Custom',
       message: 'password length must be 5-50 characters',
     }
-  console.log('BEFORE HASH')
   const hash = await bcrypt.hash(data['password'], 10)
-  console.log('HASHHH')
   const newUser = User({
     username: data['username'],
     passwordhash: hash,
     email: await validateEmail(data['email']),
   })
-  console.log('NEW USER', newUser)
   const response = await newUser.save()
-  console.log('NEWUSER saved')
 
   res.status(201).json(response).end()
 })

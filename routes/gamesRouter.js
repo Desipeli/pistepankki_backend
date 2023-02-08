@@ -45,7 +45,6 @@ router.post('/', async (req, res) => {
     }
   }
   for await (const [index, player] of data.players.entries()) {
-    console.log(player)
     if (player in players) {
       throw {
         name: 'Custom',
