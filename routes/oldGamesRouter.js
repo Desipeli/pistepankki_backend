@@ -13,13 +13,17 @@ router.post('/', async (req, res) => {
     names_ids[username] = user_id
   }
 
-  const formatted_rounds = {}
-  data['rounds'].forEach((round, index) => {
-    const newRound = {}
-    Object.keys(round).forEach((user) => {
-      newRound[names_ids[user]] = round[user]
+  const formatted_rounds = []
+  data['rounds'].forEach((round, roundIndex) => {
+    const newRound = new Array(data['players'].length - 1).fill(0)
+    Object.keys(round).forEach((player) => {
+      data['players'].forEach((name, playerIndex) => {
+        if (player === name) {
+          newRound[playerIndex] = round[player]
+        }
+      })
     })
-    formatted_rounds[index + 1] = newRound
+    formatted_rounds[roundIndex] = newRound
   })
 
   const winners = []
@@ -41,7 +45,8 @@ router.post('/', async (req, res) => {
     sport: sportId,
     submitter: submitter,
     winners: winners,
-    accepted: true,
+    approved: true,
+    approvedBy: Object.values(names_ids),
   })
 
   const saved = await newgame.save()
@@ -58,7 +63,6 @@ router.post('/', async (req, res) => {
       }
     }
   }
-  console.log(names_ids)
 
   res.json(saved)
 })
