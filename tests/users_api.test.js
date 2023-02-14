@@ -22,7 +22,7 @@ const createUsers = async () => {
     password: 'pass3',
   }
   const user4 = {
-    username: 'user4',
+    username: 'deleted',
     password: 'pass4',
   }
   await api.post('/api/users').send(user1).expect(201)
@@ -194,7 +194,10 @@ describe('Find user', () => {
 })
 
 describe('Delete', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
+    await api.delete('/api/users').expect(204)
+    await api.delete('/api/games').expect(204)
+    await api.delete('/api/sports').expect(204)
     await createUsers()
   })
 
@@ -205,9 +208,52 @@ describe('Delete', () => {
     await api.get('/api/users').expect(200)
     userListLength(3)
   })
+
+  test('deleted user id will be replaced with deleted-user in games', async () => {
+    const user1 = await api.get('/api/users/?username=user1').expect(200)
+    const user2 = await api.get('/api/users/?username=user2').expect(200)
+    const p1 = user1.body[0]._id
+    const p2 = user2.body[0]._id
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'user1', password: 'pass1' })
+    const token = `bearer ${login.body.token}`
+    await api.delete('/api/sports').expect(204)
+    const sport = await api
+      .post('/api/sports')
+      .send({ name: 'squash' })
+      .expect(201)
+    const newGame = {
+      players: [p1, p2],
+      rounds: [
+        [1, 2],
+        [3, 2],
+        [3, 2],
+      ],
+      sport: sport.body._id,
+    }
+    const savedGame = await api
+      .post('/api/games')
+      .set('Authorization', token)
+      .send(newGame)
+      .expect(201)
+    const gamesList = api.get('/api/games').expect(200)
+    expect((await gamesList).body).toHaveLength(1)
+
+    // Delete user and check
+    await api.delete(`/api/users/${p1}`).expect(204)
+    const replaced = await api.get('/api/users/?username=deleted')
+    const savedGameAfter = await api.get(`/api/games/${savedGame.body._id}`)
+    const deletedPlayer = savedGameAfter.body.players.filter(
+      (p) => p._id === replaced.body[0]._id
+    )
+    expect(deletedPlayer[0]._id).toBe(replaced.body[0]._id)
+  })
 })
 
 afterAll(async () => {
-  await api.delete('/api/users')
+  await api.delete('/api/users').expect(204)
+  await api.delete('/api/games').expect(204)
+  await api.delete('/api/sports').expect(204)
   await mongoose.connection.close()
 })

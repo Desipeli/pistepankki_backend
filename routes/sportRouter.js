@@ -16,7 +16,6 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const data = req.body
   const name = data['name']
-
   const newSport = Sport({ name: name })
   const saved = await newSport.save()
   res.status(201).json(saved).end()

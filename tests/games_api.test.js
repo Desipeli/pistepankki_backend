@@ -278,6 +278,33 @@ test('deleted game is removed from all users', async () => {
   expect(user2.body[0].games).toHaveLength(0)
 })
 
+test('can not delete if not in playerlist', async () => {
+  const p1Id = userIds[0]
+  const p2Id = userIds[1]
+  const newGame = {
+    players: [p1Id, p2Id],
+    date: Date.now(),
+    rounds: [
+      [12, 10],
+      [13, 13],
+      [10, 12],
+    ],
+    sport: sportId,
+  }
+  const token = `Bearer ${await login('user1', 'pass1')}`
+  const game = await api
+    .post('/api/games')
+    .set('Authorization', token)
+    .send(newGame)
+    .expect(201)
+
+  const wrongToken = `Bearer ${await login('user3', 'pass3')}`
+  await api
+    .delete(`/api/games/${game.body._id}`)
+    .set('Authorization', wrongToken)
+    .expect(401)
+})
+
 afterEach(async () => {
   await api.delete('/api/games').expect(204)
 })

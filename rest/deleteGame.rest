@@ -1,3 +1,3 @@
-DELETE http://localhost:3001/api/games/63de68d277d2dc711309fcc7
-
+DELETE http://localhost:3001/api/games/63eb96a518262a9476ec74a5
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRlc3N1IiwiaWQiOiI2M2ViOTY5YjE4MjYyYTk0NzZlYzc0YTAiLCJpYXQiOjE2NzYzODQwMjksImV4cCI6MTY4NDE2MDAyOX0.mVWlZjtDx4YxDX8idB_X_873LSCro4zAz2weVGffBY8
 # ObjectId

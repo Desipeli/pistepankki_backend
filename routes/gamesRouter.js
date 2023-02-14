@@ -101,7 +101,6 @@ router.post('/', async (req, res) => {
     submitter: mongoose.Types.ObjectId(decodedToken.id),
     approvedBy: mongoose.Types.ObjectId(decodedToken.id),
   })
-
   const savedGame = await newGame.save()
 
   if (savedGame) {
@@ -140,6 +139,15 @@ router.get('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // Delete match from games and from all connected users
+
+  const decodedToken = getDecodedToken(req)
+  const game = await Game.findById(req.params.id)
+
+  if (!game.players.includes(decodedToken.id))
+    throw {
+      name: 'Authorization',
+      message: 'You did not participate in this game',
+    }
 
   const deletedMatch = await Game.findByIdAndDelete(req.params.id)
   const players = deletedMatch.players
