@@ -6,9 +6,11 @@ const mongoose = require('mongoose')
 const router = express.Router()
 const getDecodedToken = require('../services/tokenService')
 
+const timeouts = {}
+
 router.get('/', async (req, res) => {
   const parameters = {}
-
+  console.log(req.body)
   if (req.query.id) {
     parameters['_id'] = mongoose.Types.ObjectId(req.query.id)
   }
@@ -25,17 +27,34 @@ router.get('/', async (req, res) => {
       $lte: decodeURIComponent(req.query.dateto),
     }
   }
-
-  const allGames = await Game.find(parameters).populate('players', {
-    games: 0,
-    __v: 0,
-  })
-  // .populate('sport', { __v: 0 })
+  console.log(parameters)
+  const allGames = await Game.find(parameters)
+    .populate('players', {
+      games: 0,
+      __v: 0,
+    })
+    .populate('sport', { __v: 0 })
+    .populate('winners', { __v: 0, games: 0, email: 0 })
   res.json(allGames)
 })
 
 router.post('/', async (req, res) => {
   const decodedToken = getDecodedToken(req)
+  if (config.NODE_ENV !== 'test') {
+    const timeOutId = setTimeout(() => {
+      delete timeouts[decodedToken.id]
+    }, 5000)
+    if (decodedToken.id in timeouts) {
+      clearTimeout(timeouts[decodedToken.id])
+      timeouts[decodedToken.id] = timeOutId
+      throw {
+        name: 'TooManyRequests',
+        message: 'wait 5s before trying again',
+      }
+    }
+    timeouts[decodedToken.id] = timeOutId
+  }
+
   const data = req.body
   const players = {}
   if (!data.players.includes(decodedToken.id)) {
@@ -59,6 +78,12 @@ router.post('/', async (req, res) => {
       }
     }
   }
+
+  if (data.rounds.length === 0)
+    throw {
+      name: 'ValidationError',
+      message: 'can not save empty match',
+    }
   const scores = Array(data.players.length).fill(0)
 
   // Check rounds(s)
@@ -101,6 +126,8 @@ router.post('/', async (req, res) => {
     submitter: mongoose.Types.ObjectId(decodedToken.id),
     approvedBy: mongoose.Types.ObjectId(decodedToken.id),
   })
+  console.log(newGame)
+
   const savedGame = await newGame.save()
 
   if (savedGame) {
