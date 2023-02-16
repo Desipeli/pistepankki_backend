@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const Game = require('../models/game')
 const config = require('../utils/config')
+const getDecodedToken = require('../services/tokenService')
 const router = express.Router()
 
 const validateEmail = async (addr) => {
@@ -27,6 +28,14 @@ const validateEmail = async (addr) => {
 
 router.post('/', async (req, res) => {
   const data = req.body
+  if (data.username !== 'delete') {
+    const token = getDecodedToken(req)
+    if (token.username !== 'dessu')
+      throw {
+        name: 'Authorization',
+        message: 'only admin can create users',
+      }
+  }
   if (!data.username || !data.password)
     throw {
       name: 'Custom',
