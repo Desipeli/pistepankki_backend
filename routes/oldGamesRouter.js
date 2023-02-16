@@ -3,9 +3,10 @@ const User = require('../models/user')
 const Sport = require('../models/sport')
 const Game = require('../models/game')
 const router = express.Router()
+const getDecodedToken = require('../services/tokenService')
 
-router.post('/', async (req, res) => {
-  const data = req.body
+const oldGame = async (game) => {
+  const data = game
   const names_ids = {}
   for (const username of data['players']) {
     const user = await User.findOne({ username: username })
@@ -63,8 +64,25 @@ router.post('/', async (req, res) => {
       }
     }
   }
+}
 
-  res.json(saved)
+router.post('/read', async (req, res) => {
+  const token = getDecodedToken(req)
+
+  if (!token || token.username !== 'dessu')
+    throw {
+      name: 'Authorization',
+      message: 'Errroror',
+    }
+  const fs = require('fs')
+  const raw = fs.readFileSync('oldgames.json')
+  const oldgames = JSON.parse(raw)
+  for (const game of Object.values(oldgames)) {
+    console.log(game.date)
+    await oldGame(game)
+  }
+
+  res.status(201)
 })
 
 module.exports = router
