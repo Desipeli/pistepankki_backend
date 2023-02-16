@@ -156,8 +156,9 @@ router.post('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const game = await Game.findById(req.params.id)
-    .populate('players', { games: 0, __v: 0 })
+    .populate('players', { games: 0, __v: 0, email: 0 })
     .populate('sport', { __v: 0 })
+    .populate('winners', { __v: 0, games: 0, email: 0 })
   if (game) {
     res.status(200).json(game)
   }
