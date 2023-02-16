@@ -81,6 +81,16 @@ router.get('/', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
+  if (config.NODE_ENV !== 'test') {
+    const token = getDecodedToken(req)
+    const checkUser = await User.findById(req.params.id)
+    if (!(token.username === 'dessu' || token.username === checkUser.username))
+      throw {
+        name: 'Authorization',
+        message: 'unauthorized',
+      }
+  }
+
   const user = await User.findByIdAndDelete(req.params.id)
   const gamesToUpdate = user.games
   const delRes = await User.find({ username: 'deleted' })
