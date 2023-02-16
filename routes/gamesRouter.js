@@ -10,7 +10,6 @@ const timeouts = {}
 
 router.get('/', async (req, res) => {
   const parameters = {}
-  console.log(req.body)
   if (req.query.id) {
     parameters['_id'] = mongoose.Types.ObjectId(req.query.id)
   }
@@ -27,7 +26,6 @@ router.get('/', async (req, res) => {
       $lte: decodeURIComponent(req.query.dateto),
     }
   }
-  console.log(parameters)
   const allGames = await Game.find(parameters)
     .populate('players', {
       games: 0,
@@ -126,7 +124,6 @@ router.post('/', async (req, res) => {
     submitter: mongoose.Types.ObjectId(decodedToken.id),
     approvedBy: mongoose.Types.ObjectId(decodedToken.id),
   })
-  console.log(newGame)
 
   const savedGame = await newGame.save()
 
