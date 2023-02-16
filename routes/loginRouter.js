@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 
 router.post('/', async (req, res) => {
   const { username, password } = req.body
-  if (!(username && password))
+  if (!(username && password) || username === 'deleted')
     throw {
       name: 'Authorization',
       message: 'provide username and password',
