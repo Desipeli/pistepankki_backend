@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
   if (req.query.id) {
     parameters['_id'] = req.query.id
   }
-  const users = await User.find(parameters)
+  let users = await User.find(parameters)
     // .populate({
     //   path: 'games',
     //   model: 'Game',
