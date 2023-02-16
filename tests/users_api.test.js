@@ -206,7 +206,7 @@ describe('Delete', () => {
     const _id = res.body[0]._id
     await api.delete(`/api/users/${_id}`).expect(204)
     await api.get('/api/users').expect(200)
-    userListLength(3)
+    await userListLength(3)
   })
 
   test('deleted user id will be replaced with deleted-user in games', async () => {
@@ -237,8 +237,8 @@ describe('Delete', () => {
       .set('Authorization', token)
       .send(newGame)
       .expect(201)
-    const gamesList = api.get('/api/games').expect(200)
-    expect((await gamesList).body).toHaveLength(1)
+    const gamesList = await api.get('/api/games').expect(200)
+    expect(gamesList.body).toHaveLength(1)
 
     // Delete user and check
     await api.delete(`/api/users/${p1}`).expect(204)
