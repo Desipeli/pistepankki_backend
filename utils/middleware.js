@@ -22,6 +22,9 @@ const errorHandler = (error, req, res, next) => {
   if (error.name === 'Forbidden') {
     return res.status(403).send({ error: error.message })
   }
+  if (error.name === 'TooManyRequests') {
+    return res.status(429).send({ error: error.message })
+  }
   if (error.name === 'Custom') {
     return res.status(400).json({ error: error.message })
   }
