@@ -2,6 +2,7 @@ const express = require('express')
 const config = require('../utils/config')
 const Sport = require('../models/sport')
 const router = express.Router()
+const getDecodedToken = require('../services/tokenService')
 
 router.get('/', async (req, res) => {
   const sports = await Sport.find({})
@@ -14,6 +15,14 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
+  if (config.NODE_ENV !== 'test') {
+    const token = getDecodedToken(req)
+    if (token.username !== 'dessu')
+      throw {
+        name: 'Authorization',
+        message: 'unauthorized',
+      }
+  }
   const data = req.body
   const name = data['name']
   const newSport = Sport({ name: name })
@@ -28,6 +37,14 @@ router.delete('/', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
+  if (config.NODE_ENV !== 'test') {
+    const token = getDecodedToken(req)
+    if (token.username !== 'dessu')
+      throw {
+        name: 'Authorization',
+        message: 'unauthorized',
+      }
+  }
   await Sport.findByIdAndDelete(req.params.id)
   res.status(204).end()
 })
