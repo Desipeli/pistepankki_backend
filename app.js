@@ -2,10 +2,12 @@ const config = require('./utils/config')
 const express = require('express')
 require('express-async-errors')
 const app = express()
+app.use(express.static('build'))
 const cors = require('cors')
 const morgan = require('morgan')
 const middleware = require('./utils/middleware')
 app.use(express.json())
+
 app.use(cors())
 app.use(morgan('combined'))
 
@@ -24,10 +26,6 @@ app.use('/api/oldappgames', oldGamesRouter)
 app.use('/api/games', gamesRouter)
 app.use('/api/sports', sportRouter)
 app.use('/api/login', loginRouter)
-
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World!</h1>')
-})
 
 // Errors
 app.use(middleware.errorHandler)
