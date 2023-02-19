@@ -26,6 +26,14 @@ const validateEmail = async (addr) => {
   }
 }
 
+const validatePassword = (password) => {
+  if (password.length < 5 || password.length > 50)
+    throw {
+      name: 'Custom',
+      message: 'password length must be 5-50 characters',
+    }
+}
+
 router.post('/', async (req, res) => {
   const data = req.body
   if (data.username !== 'delete') {
@@ -41,11 +49,9 @@ router.post('/', async (req, res) => {
       name: 'Custom',
       message: 'provide username and password',
     }
-  if (data['password'].length < 5 || data['password'].length > 50)
-    throw {
-      name: 'Custom',
-      message: 'password length must be 5-50 characters',
-    }
+
+  validatePassword(data.password)
+
   const hash = await bcrypt.hash(data['password'], 10)
   const newUser = User({
     username: data['username'],
@@ -135,6 +141,36 @@ router.delete('/', async (req, res) => {
   if (config.NODE_ENV !== 'test') return
   await User.deleteMany({})
   res.status(204).end()
+})
+
+router.put('/changepassword', async (req, res) => {
+  const token = getDecodedToken(req)
+  const p1 = req.body.p1
+  const p2 = req.body.p2
+  const current = req.body.current
+  const username = token.username
+
+  const user = await User.findOne({ username })
+
+  const passwordCorrect =
+    user === null ? false : await bcrypt.compare(current, user.passwordhash)
+  if (!passwordCorrect)
+    throw {
+      name: 'Authorization',
+      message: 'invalid credentials',
+    }
+  if (p1 !== p2)
+    throw {
+      name: 'ValidationError',
+      message: 'passwords do not match',
+    }
+
+  validatePassword(p1)
+  await User.findByIdAndUpdate(user._id.toString(), {
+    passwordhash: await bcrypt.hash(p1, 10),
+  })
+
+  res.status(200).end()
 })
 
 module.exports = router
