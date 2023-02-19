@@ -1,4 +1,5 @@
 const config = require('./utils/config')
+const path = require('path')
 const express = require('express')
 require('express-async-errors')
 const app = express()
@@ -26,6 +27,10 @@ app.use('/api/oldappgames', oldGamesRouter)
 app.use('/api/games', gamesRouter)
 app.use('/api/sports', sportRouter)
 app.use('/api/login', loginRouter)
+
+app.get('/*', async (req, res) => {
+  res.status(200).sendFile(path.join(__dirname, 'build', 'index.html'))
+})
 
 // Errors
 app.use(middleware.errorHandler)
