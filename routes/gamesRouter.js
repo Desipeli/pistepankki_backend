@@ -33,6 +33,7 @@ router.get('/', async (req, res) => {
     })
     .populate('sport', { __v: 0 })
     .populate('winners', { __v: 0, games: 0, email: 0 })
+    .populate('submitter', { __v: 0, games: 0, email: 0 })
   res.json(allGames)
 })
 
@@ -156,6 +157,7 @@ router.get('/:id', async (req, res) => {
     .populate('players', { games: 0, __v: 0, email: 0 })
     .populate('sport', { __v: 0 })
     .populate('winners', { __v: 0, games: 0, email: 0 })
+    .populate('submitter', { __v: 0, games: 0, email: 0 })
   if (game) {
     res.status(200).json(game)
   }
