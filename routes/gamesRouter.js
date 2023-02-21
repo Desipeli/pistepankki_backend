@@ -95,7 +95,7 @@ router.post('/', async (req, res) => {
       }
     }
     for (const [scoreIndex, score] of data.rounds[roundIndex].entries()) {
-      if (Number(score)) scores[scoreIndex] += Number(score)
+      if (!isNaN(score)) scores[scoreIndex] += Number(score)
       else
         throw {
           name: 'Custom',
@@ -169,13 +169,11 @@ router.delete('/:id', async (req, res) => {
 
   const decodedToken = getDecodedToken(req)
   const game = await Game.findById(req.params.id)
-
-  if (!game.players.includes(decodedToken.id))
+  if (game.submitter.toString() !== decodedToken.id)
     throw {
       name: 'Authorization',
-      message: 'You did not participate in this game',
+      message: 'You did not submit this game',
     }
-
   const deletedMatch = await Game.findByIdAndDelete(req.params.id)
   const players = deletedMatch.players
 
