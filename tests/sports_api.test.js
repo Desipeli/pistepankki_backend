@@ -1,22 +1,32 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const db = require('./db')
 const app = require('../app')
 const api = supertest(app)
 const { createUsers, deleteUsers, deleteSports } = require('./commonStuff')
+
+const connectDB = async () => await db.connect()
+const clearDB = async () => await db.clear()
+const closeDB = async () => await db.close()
+
+beforeAll(async () => {
+  await connectDB()
+})
+
+beforeEach(async () => {
+  await clearDB()
+  await createUsers()
+})
+
+afterAll(async () => {
+  await clearDB()
+  await closeDB()
+})
 
 const sportListLength = async (length) => {
   const res = await api.get('/api/sports').expect(200)
   expect(res.body).toHaveLength(length)
 }
-
-beforeAll(async () => {
-  await deleteUsers()
-  await createUsers()
-})
-
-beforeEach(async () => {
-  await deleteSports()
-})
 
 describe('Sport', () => {
   test('can be created by admin', async () => {
@@ -67,10 +77,4 @@ describe('Sport', () => {
 
     await sportListLength(1)
   })
-})
-
-afterAll(async () => {
-  await deleteUsers()
-  await deleteSports()
-  setTimeout(async () => await mongoose.connection.close(), 1)
 })
