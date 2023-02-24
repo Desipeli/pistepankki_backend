@@ -15,12 +15,6 @@ jobs:
           node-version: 18
       - run: npm install
       - run: npm run lint
-        env:
-          SECRET: ${{ secrets.SECRET }}
-          MONGO_URL_TEST: ${{ secrets.MONGO_URL_TEST }}
-          MONGO_URL: ${{ secrets.MONGO_URL }}
-          NODE_ENV: ${{ secrets.NODE_ENV }}
-          PORT: ${{ secrets.PORT }}
       - run: npm test
         env:
           SECRET: ${{ secrets.SECRET }}
