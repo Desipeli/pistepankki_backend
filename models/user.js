@@ -21,6 +21,14 @@ const userSchema = new mongoose.Schema({
     required: false,
     ref: 'Game',
   },
+  admin: {
+    type: Boolean,
+    default: false,
+  },
+  active: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 userSchema.set('toJSON', {
