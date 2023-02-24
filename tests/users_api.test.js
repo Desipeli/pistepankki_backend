@@ -1,17 +1,30 @@
-const mongoose = require('mongoose')
 const supertest = require('supertest')
+const db = require('./db')
 const app = require('../app')
 const api = supertest(app)
-const { createUsers, deleteUsers } = require('./commonStuff')
+const { createUsers } = require('./commonStuff')
+
+const connectDB = async () => await db.connect()
+const clearDB = async () => await db.clear()
+const closeDB = async () => await db.close()
+
+beforeAll(async () => {
+  await connectDB()
+})
+
+beforeEach(async () => {
+  await clearDB()
+})
+
+afterAll(async () => {
+  await clearDB()
+  await closeDB()
+})
 
 const userListLength = async (length) => {
   const res = await api.get('/api/users').expect(200)
   expect(res.body).toHaveLength(length)
 }
-
-beforeEach(async () => {
-  await deleteUsers()
-})
 
 test('userlist is empty', async () => {
   await userListLength(0)
@@ -258,9 +271,4 @@ describe('Password', () => {
       .send({ username: 'user3', password: 'Kolmo!234' })
       .expect(200)
   })
-})
-
-afterAll(async () => {
-  await deleteUsers()
-  await mongoose.connection.close()
 })
