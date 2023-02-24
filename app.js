@@ -12,8 +12,10 @@ app.use(express.json())
 app.use(cors())
 app.use(morgan('combined'))
 
-const mongoose = require('mongoose')
-mongoose.connect(config.MONGO_URL)
+if (config.NODE_ENV !== 'test') {
+  const mongoose = require('mongoose')
+  mongoose.connect(config.MONGO_URL)
+}
 
 // Routers
 const userRouter = require('./routes/userRouter')
@@ -28,6 +30,7 @@ app.use('/api/games', gamesRouter)
 app.use('/api/sports', sportRouter)
 app.use('/api/login', loginRouter)
 
+// Tää jotta muutkin kuin etusivu toimii
 app.get('/*', async (req, res) => {
   res.status(200).sendFile(path.join(__dirname, 'build', 'index.html'))
 })
