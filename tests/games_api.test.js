@@ -1,23 +1,26 @@
-const mongoose = require('mongoose')
 const supertest = require('supertest')
+const db = require('./db')
 const app = require('../app')
-const {
-  createUsers,
-  deleteUsers,
-  createSports,
-  deleteGames,
-  deleteSports,
-} = require('./commonStuff')
+const { createUsers, createSports } = require('./commonStuff')
 
 const api = supertest(app)
 
-const login = async (username, password, exp) => {
-  const res = await api
-    .post('/api/login')
-    .send({ username, password })
-    .expect(exp)
-  return res.body.token
-}
+const connectDB = async () => await db.connect()
+const clearDB = async () => await db.clear()
+const closeDB = async () => await db.close()
+
+beforeAll(async () => {
+  await connectDB()
+})
+
+beforeEach(async () => {
+  await clearDB()
+})
+
+afterAll(async () => {
+  await clearDB()
+  await closeDB()
+})
 
 const postGame = async (newGame, token, exp) => {
   const game = await api
@@ -28,17 +31,13 @@ const postGame = async (newGame, token, exp) => {
   return game
 }
 
-beforeAll(async () => {
-  await deleteGames()
-  await deleteUsers()
-  await deleteSports()
-})
-
-afterEach(async () => {
-  await deleteGames()
-  await deleteUsers()
-  await deleteSports()
-})
+const login = async (username, password, exp) => {
+  const res = await api
+    .post('/api/login')
+    .send({ username, password })
+    .expect(exp)
+  return res.body.token
+}
 
 test('gamelist is empty', async () => {
   const games = await api.get('/api/games').expect(200)
@@ -284,11 +283,4 @@ test('admin can delete', async () => {
     .delete(`/api/games/${game.body._id}`)
     .set('Authorization', adminToken)
     .expect(204)
-})
-
-afterAll(async () => {
-  await deleteGames()
-  await deleteUsers()
-  await deleteSports()
-  await mongoose.connection.close()
 })
