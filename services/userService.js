@@ -76,6 +76,20 @@ const validateAdmin = async (req, data) => {
   return isAdminSecret
 }
 
+const isAdmin = async (req) => {
+  const token = getDecodedToken(req)
+  const user = await User.findOne({ username: token.username })
+  return user.admin
+}
+
+const adminRequired = async (req) => {
+  if (!isAdmin(req))
+    throw {
+      name: 'Authorization',
+      message: 'unauthorized',
+    }
+}
+
 const createUser = async (username, password, email, admin) => {
   const hash = await bcrypt.hash(password, 10)
   const newUser = User({
@@ -146,6 +160,49 @@ const deleteAllUsers = async (adminSecret) => {
   }
 }
 
+const getUsers = async (parameters) => {
+  return await User.find(parameters)
+    // .populate({
+    //   path: 'games',
+    //   model: 'Game',
+    //   select: 'sport date',
+    //   populate: {
+    //     path: 'sport',
+    //     model: 'Sport',
+    //   },
+    // })
+    .populate('games')
+}
+
+const changePassword = async (
+  username,
+  currentPassword,
+  newPassword,
+  confirmPassword
+) => {
+  if (newPassword !== confirmPassword)
+    throw {
+      name: 'Custom',
+      message: 'passwords do not match',
+    }
+  validatePassword(newPassword)
+  const user = await User.findOne({ username })
+  const passwordCorrect =
+    user === null
+      ? false
+      : await bcrypt.compare(currentPassword, user.passwordhash)
+  if (!passwordCorrect)
+    throw {
+      name: 'Authorization',
+      message: 'invalid credentials',
+    }
+
+  const hash = await bcrypt.hash(newPassword, 10)
+  await User.findByIdAndUpdate(user._id, {
+    passwordhash: hash,
+  })
+}
+
 module.exports = {
   validateAdmin,
   validateEmail,
@@ -155,4 +212,8 @@ module.exports = {
   deleteUser,
   deleteAllUsers,
   isDeleteAuthorized,
+  isAdmin,
+  adminRequired,
+  getUsers,
+  changePassword,
 }
