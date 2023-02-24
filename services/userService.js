@@ -83,7 +83,7 @@ const isAdmin = async (req) => {
 }
 
 const adminRequired = async (req) => {
-  if (!isAdmin(req))
+  if (!(await isAdmin(req)))
     throw {
       name: 'Authorization',
       message: 'unauthorized',
