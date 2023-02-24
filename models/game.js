@@ -32,4 +32,11 @@ const gameSchema = new mongoose.Schema({
   ],
 })
 
+gameSchema.set('toJSON', {
+  //virtuals: true,
+  transform: (doc, ret) => {
+    delete ret.__v
+  },
+})
+
 module.exports = mongoose.model('Game', gameSchema)
