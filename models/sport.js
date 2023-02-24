@@ -10,4 +10,11 @@ const sportSchema = new mongoose.Schema({
   },
 })
 
+sportSchema.set('toJSON', {
+  //virtuals: true,
+  transform: (doc, ret) => {
+    delete ret.__v
+  },
+})
+
 module.exports = mongoose.model('Sport', sportSchema)
