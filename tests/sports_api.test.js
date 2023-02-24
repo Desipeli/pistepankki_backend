@@ -1,9 +1,8 @@
-const mongoose = require('mongoose')
 const supertest = require('supertest')
 const db = require('./db')
 const app = require('../app')
 const api = supertest(app)
-const { createUsers, deleteUsers, deleteSports } = require('./commonStuff')
+const { createUsers } = require('./commonStuff')
 
 const connectDB = async () => await db.connect()
 const clearDB = async () => await db.clear()
