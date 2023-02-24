@@ -7,10 +7,12 @@ let MONGO_URL =
     ? process.env.MONGO_URL_TEST
     : process.env.MONGO_URL
 let NODE_ENV = process.env.NODE_ENV
+let NEW_ADMIN_SECRET = process.env.NEW_ADMIN_SECRET
 
 module.exports = {
   PORT,
   MONGO_URL,
   SECRET,
   NODE_ENV,
+  NEW_ADMIN_SECRET,
 }
