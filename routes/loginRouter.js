@@ -24,10 +24,9 @@ router.post('/', async (req, res) => {
     username: user.username,
     id: user._id,
   }
-  const token = await jwt.sign(tokenUser, process.env.SECRET, {
+  const token = jwt.sign(tokenUser, process.env.SECRET, {
     expiresIn: '90d',
   })
-  console.log('VALMIS!')
   res.status(200).send({ token, username: user.username })
 })
 
