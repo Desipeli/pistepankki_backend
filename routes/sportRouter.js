@@ -1,8 +1,12 @@
 const express = require('express')
-const config = require('../utils/config')
 const Sport = require('../models/sport')
 const router = express.Router()
-const getDecodedToken = require('../services/tokenService')
+const { adminRequired } = require('../services/userService')
+const {
+  addSport,
+  deleteSport,
+  deleteAllSports,
+} = require('../services/sportService')
 
 router.get('/', async (req, res) => {
   const sports = await Sport.find({})
@@ -15,37 +19,22 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  if (config.NODE_ENV !== 'test') {
-    const token = getDecodedToken(req)
-    if (token.username !== 'dessu')
-      throw {
-        name: 'Authorization',
-        message: 'unauthorized',
-      }
-  }
+  await adminRequired(req)
   const data = req.body
   const name = data['name']
-  const newSport = Sport({ name: name })
-  const saved = await newSport.save()
+  const saved = await addSport(name)
   res.status(201).json(saved).end()
 })
 
 router.delete('/', async (req, res) => {
-  if (config.NODE_ENV !== 'test') return
-  await Sport.deleteMany({})
+  await adminRequired(req)
+  deleteAllSports(req.body.adminSecret)
   res.status(204).end()
 })
 
 router.delete('/:id', async (req, res) => {
-  if (config.NODE_ENV !== 'test') {
-    const token = getDecodedToken(req)
-    if (token.username !== 'dessu')
-      throw {
-        name: 'Authorization',
-        message: 'unauthorized',
-      }
-  }
-  await Sport.findByIdAndDelete(req.params.id)
+  await adminRequired(req)
+  await deleteSport(req.params.id)
   res.status(204).end()
 })
 
