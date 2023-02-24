@@ -1,40 +1,16 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const { createUser, deleteAllUsers } = require('../services/userService')
 const app = require('../app')
-const config = require('../utils/config')
 const api = supertest(app)
+const { createUsers, deleteUsers } = require('./commonStuff')
 
 const userListLength = async (length) => {
   const res = await api.get('/api/users').expect(200)
   expect(res.body).toHaveLength(length)
 }
 
-const createUsers = async () => {
-  const admin = {
-    username: 'admin',
-    password: 'Nolle!234',
-  }
-  const user1 = {
-    username: 'user1',
-    password: 'Ykko!234',
-  }
-  const user2 = {
-    username: 'user2',
-    password: 'Kakko!234',
-  }
-  const user3 = {
-    username: 'user3',
-    password: 'Kolmo!234',
-  }
-  await createUser(admin.username, admin.password, '', true)
-  await createUser(user1.username, user1.password, '', false)
-  await createUser(user2.username, user2.password, '', false)
-  await createUser(user3.username, user3.password, '', false)
-}
-
 beforeEach(async () => {
-  await deleteAllUsers(config.NEW_ADMIN_SECRET)
+  await deleteUsers()
 })
 
 test('userlist is empty', async () => {
@@ -192,6 +168,7 @@ describe('Delete', () => {
     const login = await api
       .post('/api/login')
       .send({ username: 'user3', password: 'Kolmo!234' })
+      .expect(200)
     const res = await api.get('/api/users/?username=user3').expect(200)
     const _id = res.body[0]._id
     await api
@@ -206,6 +183,7 @@ describe('Delete', () => {
     const login = await api
       .post('/api/login')
       .send({ username: 'admin', password: 'Nolle!234' })
+      .expect(200)
 
     const res = await api.get('/api/users/?username=user3').expect(200)
     const _id = res.body[0]._id
@@ -227,6 +205,7 @@ describe('Can not delete', () => {
     const login = await api
       .post('/api/login')
       .send({ username: 'user3', password: 'Kolmo!234' })
+      .expect(200)
 
     const res = await api.get('/api/users/?username=user2').expect(200)
     const _id = res.body[0]._id
@@ -239,7 +218,49 @@ describe('Can not delete', () => {
   })
 })
 
+describe('Password', () => {
+  beforeEach(async () => {
+    await createUsers()
+  })
+
+  test('can be changed', async () => {
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'user3', password: 'Kolmo!234' })
+      .expect(200)
+
+    await api
+      .put('/api/users/changepassword')
+      .set('Authorization', `bearer ${login.body.token}`)
+      .send({ current: 'Kolmo!234', p1: 'Y96!73hf', p2: 'Y96!73hf' })
+      .expect(200)
+
+    await api
+      .post('/api/login')
+      .send({ username: 'user3', password: 'Y96!73hf' })
+      .expect(200)
+  })
+
+  test('can not be changed if not matching', async () => {
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'user3', password: 'Kolmo!234' })
+      .expect(200)
+
+    await api
+      .put('/api/users/changepassword')
+      .set('Authorization', `bearer ${login.body.token}`)
+      .send({ current: 'Kolmo!234', p1: 'G96!73hf', p2: 'Y96!73hf' })
+      .expect(400)
+
+    await api
+      .post('/api/login')
+      .send({ username: 'user3', password: 'Kolmo!234' })
+      .expect(200)
+  })
+})
+
 afterAll(async () => {
-  await deleteAllUsers(config.NEW_ADMIN_SECRET)
+  await deleteUsers()
   await mongoose.connection.close()
 })
