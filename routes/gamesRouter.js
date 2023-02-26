@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const game = await getGames({ _id: req.params.id })
-  res.status(200).json(game)
+  res.status(200).json(game[0])
 })
 
 router.delete('/:id', async (req, res) => {
