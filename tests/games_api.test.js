@@ -77,9 +77,9 @@ describe('Create', () => {
       players: [a1._id, u1._id, u2._id],
       date: Date.now(),
       rounds: [
-        [12, 12, 12],
         [13, 12, 11],
         [11, 12, 13],
+        [12, 13, 11],
       ],
       sport: s1._id,
     }
