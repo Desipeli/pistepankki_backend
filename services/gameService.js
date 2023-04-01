@@ -47,8 +47,8 @@ const getWinners = async (data) => {
       name: 'ValidationError',
       message: 'can not save empty match',
     }
-  const totalScores = Array(data.players.length).fill(0)
-
+  //const totalScores = Array(data.players.length).fill(0)
+  const totalWins = Array(data.players.length).fill(0)
   // Check rounds(s)
 
   for (const [roundIndex, round] of data.rounds.entries()) {
@@ -58,9 +58,14 @@ const getWinners = async (data) => {
         message: `Incorrect amount of players in round ${roundIndex + 1}`,
       }
     }
+
+    const winningPointsInRound = Math.max(...data.rounds[roundIndex])
+
     for (const [scoreIndex, score] of data.rounds[roundIndex].entries()) {
-      if (!isNaN(score)) totalScores[scoreIndex] += Number(score)
-      else
+      //if (!isNaN(score)) totalScores[scoreIndex] += Number(score)
+      if (!isNaN(score)) {
+        if (score === winningPointsInRound) totalWins[scoreIndex] += 1
+      } else
         throw {
           name: 'Custom',
           message: `malformatted score round ${roundIndex + 1} player ${
@@ -70,9 +75,15 @@ const getWinners = async (data) => {
     }
   }
   const winners = []
-  const maxScore = totalScores.reduce((a, b) => Math.max(a, b), 0)
-  for (const [index, value] of totalScores.entries()) {
-    if (value === maxScore) {
+  // const maxScore = totalScores.reduce((a, b) => Math.max(a, b), 0)
+  // for (const [index, value] of totalScores.entries()) {
+  //   if (value === maxScore) {
+  //     winners.push(data.players[index])
+  //   }
+  // }
+  const maxWins = Math.max(...totalWins)
+  for (const [index, value] of totalWins.entries()) {
+    if (value === maxWins) {
       winners.push(data.players[index])
     }
   }
