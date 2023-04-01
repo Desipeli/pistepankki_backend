@@ -58,7 +58,6 @@ router.put('/changepassword', async (req, res) => {
   const current = req.body.current
   const username = token.username
 
-  console.log(req.body)
   await changePassword(username, current, p1, p2)
 
   res.status(200).end()
