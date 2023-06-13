@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:18
+FROM --platform=$TARGETPLATFORM node AS build
 
 WORKDIR usr/src/app
 
