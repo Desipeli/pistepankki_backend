@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
   if (!(username && password) || username === 'deleted')
     throw {
       name: 'Authorization',
-      message: 'provide username and password',
+      message: 'provide username and password!',
     }
   const user = await User.findOne({ username })
 
