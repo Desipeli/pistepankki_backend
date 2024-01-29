@@ -3,7 +3,7 @@ const path = require('path')
 const express = require('express')
 require('express-async-errors')
 const app = express()
-app.use(express.static('build'))
+app.use(express.static('dist'))
 const cors = require('cors')
 const morgan = require('morgan')
 const middleware = require('./utils/middleware')
@@ -32,7 +32,7 @@ app.use('/api/login', loginRouter)
 
 // Tää jotta muutkin kuin etusivu toimii
 app.get('/*', async (req, res) => {
-  res.status(200).sendFile(path.join(__dirname, 'build', 'index.html'))
+  res.status(200).sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
 // Errors
